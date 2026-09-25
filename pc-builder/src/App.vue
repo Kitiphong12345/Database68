@@ -320,14 +320,24 @@ onMounted(() => {
         </div>
       </template>
 
-      <!-- PRODUCTS -->
+      <!--สินค้า-->
       <template v-else-if="activePage==='products'">
         <section class="page-head">
-          <div><div class="eyebrow"><PackageCheck :size="15"/> COMPONENT CATALOG</div><h1>สินค้าทั้งหมด</h1><p>ค้นหา กรอง และเลือกชิ้นส่วนสำหรับเครื่องของคุณ</p></div>
+          <div>
+            <div class="eyebrow"><PackageCheck :size="15"/> COMPONENT CATALOG</div>
+            <h1>สินค้าทั้งหมด</h1>
+            <p>ค้นหา กรอง และเลือกชิ้นส่วนสำหรับเครื่องของคุณ</p>
+          </div>
         </section>
         <div class="catalog-toolbar">
-          <div class="searchbox"><Search :size="18"/><input v-model="search" placeholder="ค้นหาชื่อ รุ่น แบรนด์ หรือสเปค..."/></div>
-          <select v-model="sortBy"><option value="recommended">แนะนำ</option><option value="priceAsc">ราคาต่ำ → สูง</option><option value="priceDesc">ราคาสูง → ต่ำ</option><option value="rating">คะแนนรีวิว</option></select>
+          <div class="searchbox"><Search :size="18"/>
+            <input v-model="search" placeholder="ค้นหาชื่อ รุ่น แบรนด์ หรือสเปค..."/>
+          </div>
+          <select v-model="sortBy"><option value="recommended">แนะนำ</option>
+            <option value="priceAsc">ราคาต่ำ → สูง</option>
+            <option value="priceDesc">ราคาสูง → ต่ำ</option>
+            <option value="rating">คะแนนรีวิว</option>
+          </select>
         </div>
         <div class="category-tabs">
           <button :class="{active:activeCategory==='all'}" @click="activeCategory='all'">ทั้งหมด</button>
@@ -354,7 +364,7 @@ onMounted(() => {
         <div v-if="!filteredProducts.length" class="empty"><Search :size="32"/><h3>ไม่พบสินค้า</h3><p>ลองเปลี่ยนคำค้นหาหรือหมวดหมู่</p></div>
       </template>
 
-      <!-- SAVED -->
+      <!--บันทึกแล้ว-->
       <template v-else-if="activePage==='saved'">
         <section class="page-head"><div><div class="eyebrow"><Bookmark :size="15"/> SAVED BUILDS</div><h1>สเปคที่บันทึก</h1><p>เก็บสเปคที่ชอบไว้ แล้วกลับมาแก้ไขได้ทุกเมื่อ</p></div></section>
         <div v-if="savedBuilds.length" class="saved-grid">
@@ -369,7 +379,7 @@ onMounted(() => {
         <div v-else class="empty"><Bookmark :size="40"/><h3>ยังไม่มีสเปคที่บันทึก</h3><p>กลับไปจัดสเปค แล้วกด “บันทึกสเปค”</p><button class="btn primary" @click="goPage('builder')">เริ่มจัดสเปค</button></div>
       </template>
 
-      <!-- COMPARE -->
+      <!--เปรียบเทียบ-->
       <template v-else>
         <section class="page-head"><div><div class="eyebrow"><GitCompare :size="15"/> COMPARE</div><h1>เปรียบเทียบสินค้า</h1><p>เลือกสินค้าได้สูงสุด 4 รายการเพื่อดูความแตกต่าง</p></div></section>
         <div v-if="compare.length" class="compare-table-wrap">
@@ -390,7 +400,7 @@ onMounted(() => {
       </template>
     </main>
 
-    <!-- PICKER MODAL -->
+    <!--หน้าต่างเลือกรายการ-->
     <div v-if="showProductModal" class="modal-backdrop" @click.self="showProductModal=false">
       <div class="modal">
         <div class="modal-head"><div><h2>เลือก{{categoryLabels[modalCategory]}}</h2><p>เลือกชิ้นส่วนที่ต้องการติดตั้ง</p></div><button class="icon-btn" @click="showProductModal=false"><X :size="20"/></button></div>
