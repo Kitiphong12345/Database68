@@ -1,0 +1,47 @@
+export const categories = [
+  { id: 'cpu', name: 'CPU', icon: 'Cpu' },
+  { id: 'gpu', name: 'GPU', icon: 'Monitor' },
+  { id: 'motherboard', name: 'เมนบอร์ด', icon: 'CircuitBoard' },
+  { id: 'ram', name: 'RAM', icon: 'MemoryStick' },
+  { id: 'storage', name: 'SSD / HDD', icon: 'HardDrive' },
+  { id: 'psu', name: 'Power Supply', icon: 'Zap' },
+  { id: 'case', name: 'Case', icon: 'Box' },
+  { id: 'cooler', name: 'CPU Cooler', icon: 'Fan' }
+]
+
+export const products = [
+  { id:'cpu-7600', category:'cpu', brand:'AMD', name:'Ryzen 5 7600', price:6590, rating:4.8, socket:'AM5', watts:65, tier:'กลาง', specs:'6C / 12T • 3.8–5.1 GHz', color:'#ef4444' },
+  { id:'cpu-7800x3d', category:'cpu', brand:'AMD', name:'Ryzen 7 7800X3D', price:13990, rating:4.9, socket:'AM5', watts:120, tier:'สูง', specs:'8C / 16T • 3.8–5.0 GHz', color:'#ef4444' },
+  { id:'cpu-14600kf', category:'cpu', brand:'Intel', name:'Core i5-14600KF', price:10490, rating:4.7, socket:'LGA1700', watts:181, tier:'สูง', specs:'14C / 20T • 3.5–5.3 GHz', color:'#3b82f6' },
+  { id:'cpu-12400f', category:'cpu', brand:'Intel', name:'Core i5-12400F', price:4590, rating:4.7, socket:'LGA1700', watts:65, tier:'กลาง', specs:'6C / 12T • 2.5–4.4 GHz', color:'#3b82f6' },
+
+  { id:'gpu-4060', category:'gpu', brand:'NVIDIA', name:'GeForce RTX 4060 8GB', price:9990, rating:4.6, vram:'8GB', watts:115, tier:'กลาง', specs:'DLSS 3 • Ray Tracing', color:'#22c55e' },
+  { id:'gpu-4070s', category:'gpu', brand:'NVIDIA', name:'GeForce RTX 4070 SUPER 12GB', price:22990, rating:4.9, vram:'12GB', watts:220, tier:'สูง', specs:'DLSS 3 • Ray Tracing', color:'#22c55e' },
+  { id:'gpu-7800xt', category:'gpu', brand:'AMD', name:'Radeon RX 7800 XT 16GB', price:18990, rating:4.8, vram:'16GB', watts:263, tier:'สูง', specs:'16GB GDDR6 • 1440p', color:'#ef4444' },
+  { id:'gpu-7600xt', category:'gpu', brand:'AMD', name:'Radeon RX 7600 XT 16GB', price:13990, rating:4.6, vram:'16GB', watts:190, tier:'กลาง', specs:'16GB GDDR6 • 1080p', color:'#ef4444' },
+
+  { id:'mb-b650', category:'motherboard', brand:'MSI', name:'PRO B650M-A WIFI', price:4990, rating:4.7, socket:'AM5', ramType:'DDR5', form:'mATX', specs:'Wi-Fi 6E • 2.5G LAN', color:'#6366f1' },
+  { id:'mb-b650e', category:'motherboard', brand:'ASUS', name:'TUF Gaming B650-E WIFI', price:7290, rating:4.8, socket:'AM5', ramType:'DDR5', form:'ATX', specs:'PCIe 5.0 • Wi-Fi 6E', color:'#6366f1' },
+  { id:'mb-b760', category:'motherboard', brand:'Gigabyte', name:'B760M DS3H AX', price:4290, rating:4.6, socket:'LGA1700', ramType:'DDR5', form:'mATX', specs:'Wi-Fi 6E • 2.5G LAN', color:'#6366f1' },
+  { id:'mb-h610', category:'motherboard', brand:'ASRock', name:'H610M-HDV/M.2', price:2290, rating:4.4, socket:'LGA1700', ramType:'DDR4', form:'mATX', specs:'M.2 NVMe • USB 3.2', color:'#6366f1' },
+
+  { id:'ram-32-6000', category:'ram', brand:'Kingston', name:'FURY Beast 32GB (16x2) DDR5-6000', price:3290, rating:4.8, ramType:'DDR5', capacity:'32GB', speed:'6000 MT/s', specs:'CL36 • Dual Channel', color:'#a855f7' },
+  { id:'ram-16-3200', category:'ram', brand:'Corsair', name:'Vengeance 16GB (8x2) DDR4-3200', price:1590, rating:4.7, ramType:'DDR4', capacity:'16GB', speed:'3200 MT/s', specs:'CL16 • Dual Channel', color:'#a855f7' },
+  { id:'ram-32-5600', category:'ram', brand:'G.Skill', name:'Ripjaws S5 32GB DDR5-5600', price:2890, rating:4.7, ramType:'DDR5', capacity:'32GB', speed:'5600 MT/s', specs:'CL36 • Dual Channel', color:'#a855f7' },
+
+  { id:'ssd-1tb', category:'storage', brand:'WD', name:'Black SN770 1TB NVMe', price:2590, rating:4.8, capacity:'1TB', specs:'PCIe 4.0 • Read 5150 MB/s', color:'#f59e0b' },
+  { id:'ssd-2tb', category:'storage', brand:'Samsung', name:'990 EVO 2TB NVMe', price:4990, rating:4.9, capacity:'2TB', specs:'PCIe 5.0/4.0 • Read 5000 MB/s', color:'#f59e0b' },
+  { id:'hdd-2tb', category:'storage', brand:'Seagate', name:'Barracuda 2TB HDD', price:1990, rating:4.5, capacity:'2TB', specs:'7200 RPM • SATA III', color:'#f59e0b' },
+
+  { id:'psu-650', category:'psu', brand:'Corsair', name:'RM650e 650W 80+ Gold', price:2890, rating:4.8, watts:650, efficiency:'80+ Gold', specs:'Fully Modular • ATX 3.0', color:'#64748b' },
+  { id:'psu-750', category:'psu', brand:'be quiet!', name:'Pure Power 12 M 750W', price:3990, rating:4.8, watts:750, efficiency:'80+ Gold', specs:'ATX 3.0 • Modular', color:'#64748b' },
+  { id:'psu-850', category:'psu', brand:'MSI', name:'MAG A850GL 850W', price:4290, rating:4.7, watts:850, efficiency:'80+ Gold', specs:'PCIe 5.0 • Modular', color:'#64748b' },
+
+  { id:'case-airflow', category:'case', brand:'Montech', name:'AIR 100 ARGB', price:1990, rating:4.7, form:'mATX', specs:'Mesh Front • 4x ARGB Fan', color:'#14b8a6' },
+  { id:'case-atx', category:'case', brand:'Lian Li', name:'LANCOOL 216', price:3290, rating:4.9, form:'ATX', specs:'High Airflow • 160mm Fans', color:'#14b8a6' },
+  { id:'case-budget', category:'case', brand:'Cooler Master', name:'TD300 Mesh', price:2190, rating:4.6, form:'mATX', specs:'Mesh Front • ARGB', color:'#14b8a6' },
+
+  { id:'cooler-air', category:'cooler', brand:'DeepCool', name:'AK400', price:1290, rating:4.7, sockets:['AM5','LGA1700'], specs:'120mm Tower • 220W TDP', color:'#06b6d4' },
+  { id:'cooler-dual', category:'cooler', brand:'Thermalright', name:'Phantom Spirit 120 SE', price:1890, rating:4.9, sockets:['AM5','LGA1700'], specs:'Dual Tower • 280W TDP', color:'#06b6d4' },
+  { id:'cooler-aio', category:'cooler', brand:'Arctic', name:'Liquid Freezer III 240', price:2990, rating:4.8, sockets:['AM5','LGA1700'], specs:'240mm AIO • PWM', color:'#06b6d4' }
+]
