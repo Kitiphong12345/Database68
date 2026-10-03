@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS products (
   brand VARCHAR(100) NULL,
   name VARCHAR(200) NOT NULL,
   price DECIMAL(12,2) NOT NULL DEFAULT 0,
+  previous_price DECIMAL(12,2) NULL,
   rating DECIMAL(3,2) NULL,
   socket VARCHAR(60) NULL,
   watts INT NULL,
@@ -30,6 +31,7 @@ CREATE TABLE IF NOT EXISTS products (
   specs TEXT NULL,
   color VARCHAR(20) NULL,
   image_url TEXT NULL,
+  change_note VARCHAR(255) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(id)
