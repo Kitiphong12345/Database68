@@ -1,0 +1,22 @@
+const express = require('express');
+const cors = require('cors');
+const crypto = require('crypto');
+const db = require('./db');
+const app = express();
+app.use(cors());
+app.use(express.json());
+const sessions = new Map();
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const requireAdmin = (req,res,next)=>{ const a=req.headers.authorization||''; const t=a.startsWith('Bearer ')?a.slice(7):''; if(!t || !sessions.has(t)) return res.status(401).json({message:'ต้องเข้าสู่ระบบ Admin ก่อน'}); req.admin=sessions.get(t); next() }
+app.get('/',(_req,res)=>res.json({message:'PC Builder API is working!'}));
+app.get('/api/health',(_req,res)=>res.json({ok:true}));
+app.post('/api/admin/login',(req,res)=>{ const {username,password}=req.body||{}; if(!username || !password) return res.status(400).json({message:'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'}); if(username!==ADMIN_USERNAME||password!==ADMIN_PASSWORD)return res.status(401).json({message:'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'}); const token=crypto.randomBytes(32).toString('hex'); sessions.set(token,{username,createdAt:Date.now()}); res.json({token,username}) });
+app.post('/api/admin/logout',requireAdmin,(req,res)=>{ const a=req.headers.authorization||''; sessions.delete(a.slice(7)); res.json({message:'ออกจากระบบแล้ว'}); });
+app.get('/api/admin/me',requireAdmin,(req,res)=>res.json({username:req.admin.username}));
+app.get('/api/categories',(req,res)=>db.query('SELECT id,name,icon FROM categories ORDER BY id',(err,r)=>err?res.status(500).json({message:'โหลด Categories ไม่สำเร็จ'}):res.json(r)));
+app.get('/api/products',(req,res)=>db.query('SELECT id,category_id AS category,brand,name,price,previous_price,rating,socket,watts,tier,specs,color,image_url,change_note,created_at,updated_at FROM products ORDER BY category_id,name',(err,r)=>err?res.status(500).json({message:'โหลดสินค้าไม่สำเร็จ'}):res.json(r)));
+app.post('/api/products',(req,res)=>{const p=req.body||{}; if(!p.id||!p.category||!p.name||Number(p.price)<0)return res.status(400).json({message:'ข้อมูลสินค้าไม่ครบ'}); db.query('INSERT INTO products (id,category_id,brand,name,price,previous_price,rating,socket,watts,tier,specs,color,image_url,change_note) VALUES (?,?,?,?,?,NULL,?,?,?,?,?,?,?,?)',[p.id,p.category,p.brand||null,p.name,Number(p.price),Number(p.rating||0),p.socket||null,p.watts==null||p.watts===''?null:Number(p.watts),p.tier||null,p.specs||null,p.color||null,p.image_url||null,p.change_note||null],err=>err?res.status(400).json({message:'เพิ่มสินค้าไม่สำเร็จ'}):res.status(201).json({message:'เพิ่มสินค้าแล้ว'}))});
+app.put('/api/products/:id',(req,res)=>{const p=req.body||{}; db.query('SELECT price FROM products WHERE id=?',[req.params.id],(e,r)=>{if(e)return res.status(500).json({message:e.message}); if(!r.length)return res.status(404).json({message:'ไม่พบสินค้า'}); const old=Number(r[0].price), next=Number(p.price), prev=old!==next?old:null; db.query('UPDATE products SET category_id=?,brand=?,name=?,price=?,previous_price=?,rating=?,socket=?,watts=?,tier=?,specs=?,color=?,image_url=?,change_note=? WHERE id=?',[p.category,p.brand||null,p.name,next,prev,Number(p.rating||0),p.socket||null,p.watts==null||p.watts===''?null:Number(p.watts),p.tier||null,p.specs||null,p.color||null,p.image_url||null,p.change_note||null,req.params.id],err=>err?res.status(400).json({message:'แก้ไขสินค้าไม่สำเร็จ'}):res.json({message:'แก้ไขสินค้าแล้ว'}))})});
+app.delete('/api/products/:id',(req,res)=>db.query('DELETE FROM products WHERE id=?',[req.params.id],(e,r)=>e?res.status(400).json({message:'ลบสินค้าไม่สำเร็จ'}):!r.affectedRows?res.status(404).json({message:'ไม่พบสินค้า'}):res.json({message:'ลบสินค้าแล้ว'})));
+const PORT=Number(process.env.PORT||3000); app.listen(PORT,()=>console.log(`Server running at http://localhost:${PORT}`));

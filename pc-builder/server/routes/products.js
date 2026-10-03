@@ -1,147 +1,83 @@
-import express from 'express'
+import { Router } from 'express'
 import db from '../db.js'
+import { requireAdmin } from '../auth.js'
+const router = Router()
 
-const router = express.Router()
-
-// ดูสินค้าทั้งหมด
-router.get('/', async (req, res) => {
-  try {
-    const [rows] = await db.query(`
-      SELECT *
-      FROM products
-      ORDER BY id DESC
-    `)
-
-    res.json(rows)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({
-      message: 'ไม่สามารถโหลดสินค้าได้'
-    })
+function mapProduct(row) {
+  return {
+    ...row,
+    id: String(row.id),
+    category: row.category_id,
+    price: Number(row.price),
+    previous_price: row.previous_price == null ? null : Number(row.previous_price),
+    rating: row.rating == null ? null : Number(row.rating),
+    watts: row.watts == null ? null : Number(row.watts)
   }
+}
+
+router.get('/', async (req, res, next) => {
+  try {
+    const { category } = req.query
+    const [rows] = category
+      ? await db.execute('SELECT * FROM products WHERE category_id = ? ORDER BY name', [category])
+      : await db.query('SELECT * FROM products ORDER BY category_id, name')
+    res.json(rows.map(mapProduct))
+  } catch (err) { next(err) }
 })
 
-// ดูสินค้าตาม ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res, next) => {
   try {
-    const [rows] = await db.query(
-      'SELECT * FROM products WHERE id = ?',
-      [req.params.id]
-    )
-
-    if (rows.length === 0) {
-      return res.status(404).json({
-        message: 'ไม่พบสินค้า'
-      })
-    }
-
-    res.json(rows[0])
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({
-      message: 'เกิดข้อผิดพลาด'
-    })
-  }
+    const [rows] = await db.execute('SELECT * FROM products WHERE id = ?', [req.params.id])
+    if (!rows.length) return res.status(404).json({ message: 'ไม่พบสินค้า' })
+    res.json(mapProduct(rows[0]))
+  } catch (err) { next(err) }
 })
 
-// เพิ่มสินค้า
-router.post('/', async (req, res) => {
+router.post('/', requireAdmin, async (req, res, next) => {
   try {
-    const {
-      name,
-      category,
-      brand,
-      price,
-      image,
-      description
-    } = req.body
-
-    const [result] = await db.query(
-      `INSERT INTO products
-      (name, category, brand, price, image, description)
-      VALUES (?, ?, ?, ?, ?, ?)`,
-      [
-        name,
-        category,
-        brand,
-        price,
-        image,
-        description
-      ]
+    const p = req.body
+    if (!p.id || !p.category || !p.name || !Number.isFinite(Number(p.price))) return res.status(400).json({ message: 'ต้องระบุ id, category, name และ price' })
+    await db.execute(
+      `INSERT INTO products (id, category_id, brand, name, price, previous_price, rating, socket, watts, tier, specs, color, image_url, change_note)
+       VALUES (?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [String(p.id), p.category, p.brand ?? null, p.name, Number(p.price), p.rating ?? null,
+       p.socket ?? null, p.watts ?? null, p.tier ?? null, p.specs ?? null, p.color ?? null,
+       p.image_url ?? p.image ?? null, p.change_note ?? null]
     )
-
-    res.status(201).json({
-      id: result.insertId,
-      message: 'เพิ่มสินค้าเรียบร้อย'
-    })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({
-      message: 'เพิ่มสินค้าไม่สำเร็จ'
-    })
-  }
+    res.status(201).json({ message: 'เพิ่มสินค้าแล้ว', id: String(p.id) })
+  } catch (err) { next(err) }
 })
 
-// แก้ไขสินค้า
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAdmin, async (req, res, next) => {
   try {
-    const {
-      name,
-      category,
-      brand,
-      price,
-      image,
-      description
-    } = req.body
-
-    await db.query(
-      `UPDATE products
-       SET name = ?,
-           category = ?,
-           brand = ?,
-           price = ?,
-           image = ?,
-           description = ?
-       WHERE id = ?`,
-      [
-        name,
-        category,
-        brand,
-        price,
-        image,
-        description,
-        req.params.id
-      ]
-    )
-
-    res.json({
-      message: 'แก้ไขสินค้าเรียบร้อย'
-    })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({
-      message: 'แก้ไขสินค้าไม่สำเร็จ'
-    })
-  }
+    const p = req.body
+    if (!p.category || !p.name || !Number.isFinite(Number(p.price))) return res.status(400).json({ message: 'ต้องระบุ category, name และ price' })
+    const connection = await db.getConnection()
+    try {
+      await connection.beginTransaction()
+      const [currentRows] = await connection.execute('SELECT price FROM products WHERE id = ? FOR UPDATE', [req.params.id])
+      if (!currentRows.length) { await connection.rollback(); connection.release(); return res.status(404).json({ message: 'ไม่พบสินค้า' }) }
+      const oldPrice = Number(currentRows[0].price)
+      const newPrice = Number(p.price)
+      const previousPrice = oldPrice !== newPrice ? oldPrice : null
+      const [result] = await connection.execute(
+        `UPDATE products SET category_id=?, brand=?, name=?, price=?, previous_price=?, rating=?, socket=?, watts=?, tier=?, specs=?, color=?, image_url=?, change_note=? WHERE id=?`,
+        [p.category, p.brand ?? null, p.name, newPrice, previousPrice, p.rating ?? null, p.socket ?? null, p.watts ?? null,
+         p.tier ?? null, p.specs ?? null, p.color ?? null, p.image_url ?? p.image ?? null, p.change_note ?? null, req.params.id]
+      )
+      await connection.commit()
+      if (!result.affectedRows) return res.status(404).json({ message: 'ไม่พบสินค้า' })
+      res.json({ message: 'แก้ไขสินค้าแล้ว', previous_price: previousPrice })
+    } catch (err) { await connection.rollback(); throw err } finally { connection.release() }
+  } catch (err) { next(err) }
 })
 
-// ลบสินค้า
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
-    await db.query(
-      'DELETE FROM products WHERE id = ?',
-      [req.params.id]
-    )
-
-    res.json({
-      message: 'ลบสินค้าเรียบร้อย'
-    })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({
-      message: 'ลบสินค้าไม่สำเร็จ'
-    })
-  }
+    const [result] = await db.execute('DELETE FROM products WHERE id = ?', [req.params.id])
+    if (!result.affectedRows) return res.status(404).json({ message: 'ไม่พบสินค้า' })
+    res.json({ message: 'ลบสินค้าแล้ว' })
+  } catch (err) { next(err) }
 })
 
 export default router
