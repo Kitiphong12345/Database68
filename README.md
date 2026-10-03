@@ -22,7 +22,7 @@
 
 ```env
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=เปลี่ยนเป็นรหัสของคุณ
+ADMIN_PASSWORD=admin123
 ```
 
 > สำหรับ production ควรใช้รหัสผ่านจาก secret manager และเปลี่ยนระบบ session แบบ in-memory เป็น session/JWT ที่เหมาะกับการ deploy จริง
